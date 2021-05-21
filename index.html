@@ -62,7 +62,12 @@
           cnt.textContent = `${i + 1}/${wcnt}`;
         }
         t.stop();
-        result.textContent = escflg ? "" : "Congratulations!!";
+        if (escflg) {
+          result.textContent = "";
+        } else {
+          result.textContent = "Congratulations!!";
+          say("Congratulations", "en-US");
+        }
         restart.textContent = "もう一度挑戦する";
         await waitClickOrEnter(restart);
         result.textContent = restart.textContent = target.textContent = targetja.textContent = "";
