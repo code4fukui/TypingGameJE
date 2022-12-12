@@ -56,6 +56,10 @@ footer a {
   font-size: 48px;
   letter-spacing: 0.1em;
 }
+#targetja, #targetroma {
+  font-size: 36px;
+  letter-spacing: 0.1em;
+}
 
 .cursor {
   cursor: pointer;
