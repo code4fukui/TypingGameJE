@@ -1,6 +1,6 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>CityTypingGame</title>
-<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="https://code4fukui.github.io/CityTypingGame/css/styles.css">
 </head>
 <body>
 
@@ -28,11 +28,11 @@
 import { CSV } from "https://code4sabae.github.io/js/CSV.js";
 import { rnd } from "https://js.sabae.cc/rnd.js";
 import { shuffle } from "https://js.sabae.cc/shuffle.js";
-import { waitClick, waitClickOrEnter, waitKeyDown } from "./domutil.js";
-import { Timer } from "./Timer.js";
+import { waitClick, waitClickOrEnter, waitKeyDown } from "https://code4fukui.github.io/CityTypingGame/domutil.js";
+import { Timer } from "https://code4fukui.github.io/CityTypingGame/Timer.js";
 import { HiraganaParser } from "https://packages.obake.land/hiragana-parser/index.min.js";
 import { KEY_CONFIGS } from "https://taisukef.github.io/HiraganaParserDvorak/KEY_CONFIGS.js";
-import { Kana } from "./Kana.js";
+import { Kana } from "https://code4fukui.github.io/CityTypingGame/Kana.js";
 
 window.onload = async () => {
   const words0 = await CSV.fetchJSON("https://code4fukui.github.io/address-japan/data/city.csv");
