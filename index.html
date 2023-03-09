@@ -1,6 +1,5 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
-<title>CityTypingGame</title>
-<link rel="stylesheet" href="https://code4fukui.github.io/CityTypingGame/css/styles.css">
+<title>TypingGameJE</title>
 </head>
 <body>
 
@@ -11,34 +10,46 @@
 
 <div class="typingContainer">
   <p id="target"></p>
-  <p id="targetja"></p>
-  <p id="targetroma"></p>
+  <p id="answer"></p>
   <p id="result"></p>
   <p id="restart"></p>
 </div>
 
 <footer>
-  <p>ランダムに出題される20の地方公共団体名を早打ちするゲームです。クリックの替わりにエンターで進められます。ESCキーでやり直し可能。</p>
-  <p>DATA: <a href=https://github.com/code4fukui/address-japan/blob/main/data/city.csv>address-japan city.csv</a></p>
-  <p>Lib: <a href=https://github.com/2ndPINEW/HiraganaParser>HiraganaParser</a> by <a href=https://twitter.com/2ndPINEW>@2ndPINEW</a></p>
-  <p>App: <a href=https://github.com/code4fukui/CityTypingGame/>CityTypingGame</a> by <a href=https://fukuno.jig.jp/3791>@taisukef</a> - forked from "<a href=https://github.com/takerucam/TypingGame>TypingGame</a>"</p>
+  <p>ランダムに出題される20の日本語と発音をヒントに英語にして早打ちで答えるタイピングゲーム。クリックの替わりにエンターで進められます。ESCキーでやり直し可能。</p>
+  <p>DATA: <a href=https://code4fukui.github.io/SoundJE/dist/questions/questions.csv>AIに作ってもらった100の質問 英語/日本語 CSV</a></p>
+  <!--<p>Lib: <a href=https://github.com/2ndPINEW/HiraganaParser>HiraganaParser</a> by <a href=https://twitter.com/2ndPINEW>@2ndPINEW</a></p>-->
+  <p>App: <a href=https://github.com/code4fukui/TypingGameJE/>TypingGameJE</a> by <a href=https://fukuno.jig.jp/3878>@taisukef / Code for FUKUI</a> - forked from "<a href=https://github.com/takerucam/TypingGame>TypingGame</a>"</p>
 </footer>
 
 <script type="module">
 import { CSV } from "https://code4sabae.github.io/js/CSV.js";
 import { rnd } from "https://js.sabae.cc/rnd.js";
+import { sleep } from "https://js.sabae.cc/sleep.js";
 import { shuffle } from "https://js.sabae.cc/shuffle.js";
 import { waitClick, waitClickOrEnter, waitKeyDown } from "https://code4fukui.github.io/CityTypingGame/domutil.js";
 import { Timer } from "https://code4fukui.github.io/CityTypingGame/Timer.js";
-import { HiraganaParser } from "https://packages.obake.land/hiragana-parser/index.min.js";
-import { KEY_CONFIGS } from "https://taisukef.github.io/HiraganaParserDvorak/KEY_CONFIGS.js";
-import { Kana } from "https://code4fukui.github.io/CityTypingGame/Kana.js";
+import { say } from "https://code4fukui.github.io/say.js/say.js";
+
+const dummy = () => new Promise(resolve => setTimeout(() => resolve(false), 0));
+const isResolved = (promise) => promise ? Promise.race([dummy(), promise.then(() => true, () => false)]) : false;
+const isRejected = (promise) => promise ? Promise.race([dummy(), promise.then(() => false, () => true)]) : false;
+const isFinished = (promise) => promise ? Promise.race([dummy(), promise.then(() => true, () => true)]) : false;
+
+/*
+const p = sleep(1000);
+for (let i = 0; i < 20; i++) {
+  console.log(i, await isFinished(p));
+  await sleep(100);
+}
+*/
 
 window.onload = async () => {
-  const words0 = await CSV.fetchJSON("https://code4fukui.github.io/address-japan/data/city.csv");
-  const words = words0.filter(w => !w.政令市区名);
+  const defaulturl = "https://code4fukui.github.io/SoundJE/dist/questions/questions.csv";
+  const url = location.hash.substring(1) || defaulturl;
+  const words = await CSV.fetchJSON(url);
   console.log(words);
-  const wcnt = Math.min(words.length, document.location.hash.substring(1) || 20);
+  const wcnt = 20; // Math.min(words.length, document.location.hash.substring(1) || 20);
 
   for (;;) {
     target.textContent = "Click to Start!";
@@ -50,29 +61,27 @@ window.onload = async () => {
     let escflg = false;
     A: for (let i = 0; i < wcnt; i++) {
       const w = words[i];
-      const word = w.市区町村名 + " (" + w.都道府県名 + ")";
-      //say(word, "en-US");
-      target.textContent = word;
-      targetja.textContent = Kana.katakanaToHiragana(w.市区町村名_カナ);
-      const parser = new HiraganaParser({ hiraganas: targetja.textContent, configs: KEY_CONFIGS });
-      targetroma.textContent = parser.notInputedRoma;
-      for (;;) {
+      target.textContent = w.ja;
+      answer.textContent = "_".repeat(w.en.length);
+      let sayp = null;
+      for (let i = 0; i < w.en.length; i++) {
         for (;;) {
           const c = await waitKeyDown();
           if (c == "Escape") {
             escflg = true;
             break A;
           }
-          if (parser.input(c)) {
+          if (w.en[i] == c) {
             break;
+          } else if (c != "Shift" && c != "Meta") {
+            if (!sayp || await isFinished(sayp)) {
+              sayp = say(w.en, "en-US");
+            }
+            answer.innerHTML = w.en.substring(0, i) + `<span style="color:red">${w.en[i]}</span>` + "_".repeat(w.en.length - i - 1);
           }
         }
-        targetroma.textContent = '_'.repeat(parser.inputedRoma.length) + parser.notInputedRoma;
-        if (parser.isComplete()) {
-          break;
-        }
+        answer.textContent = w.en.substring(0, i + 1) + "_".repeat(w.en.length - i - 1);
       }
-      targetja.textContent = "";
       cnt.textContent = `${i + 1}/${wcnt}`;
     }
     t.stop();
@@ -80,7 +89,7 @@ window.onload = async () => {
       result.textContent = "";
     } else {
       result.textContent = "Congratulations!!";
-      //say("Congratulations", "en-US");
+      say("Congratulations", "en-US");
     }
     restart.textContent = "もう一度挑戦する";
     await waitClickOrEnter(restart);
@@ -88,5 +97,80 @@ window.onload = async () => {
   }
 };
 </script>
+
+<style>
+body {
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  background: #eee;
+}
+
+.container {
+  margin: 20px auto;
+  width: 270px;
+  background: white;
+  padding: 15px;
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+  font-size: 85%;
+  margin: 20px auto;
+  padding: 15px;
+  text-align: center;
+}
+footer a {
+  color: gray !important;
+}
+
+#timer {
+  background: #ddd;
+  height: 120px;
+  line-height: 120px;
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+
+.button {
+  width: 80px;
+  height: 45px;
+  line-height: 45px;
+  background: #ddd;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+}
+
+.inactive {
+  opacity: 0.6;
+}
+
+.typingContainer {
+  /* display: flex;
+  flex-direction: column;
+  align-items: center; */
+  text-align: center;
+}
+
+#target {
+  font-size: 36px;
+  letter-spacing: 0.1em;
+}
+#answer {
+  font-size: 36px;
+  letter-spacing: 0.1em;
+}
+
+.cursor {
+  cursor: pointer;
+}
+
+#result {
+  word-break: break-all;
+  font-size: 64px;
+}
+</style>
+
 </body>
 </html>

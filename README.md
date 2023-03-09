@@ -1,15 +1,12 @@
-# CityTypingGame
+# TypingGameJE
 
-- ランダムに出題される20の地方公共団体名を早打ちするゲーム
-- https://code4fukui.github.io/CityTypingGame/
+- ランダムに出題される20の日本語と発音をヒントに英語にして早打ちで答えるタイピングゲーム
+- https://code4fukui.github.io/TypingGameJE/
 
 ## data
 
-- https://github.com/code4fukui/address-japan
-
-## lib
-
-- https://github.com/2ndPINEW/HiraganaParser
+- [AIに作ってもらった100の質問 英語/日本語 CSV](https://code4fukui.github.io/SoundJE/dist/questions/questions.csv)
+- [AIに作ってもらった100の質問 英語/日本語 AAC音声](https://github.com/code4fukui/SoundJE/tree/main/dist/questions/sound)
 
 ## forked from
 
