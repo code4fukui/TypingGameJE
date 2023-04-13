@@ -30,19 +30,7 @@ import { shuffle } from "https://js.sabae.cc/shuffle.js";
 import { waitClick, waitClickOrEnter, waitKeyDown } from "https://code4fukui.github.io/CityTypingGame/domutil.js";
 import { Timer } from "https://code4fukui.github.io/CityTypingGame/Timer.js";
 import { say } from "https://code4fukui.github.io/say.js/say.js";
-
-const dummy = () => new Promise(resolve => setTimeout(() => resolve(false), 0));
-const isResolved = (promise) => promise ? Promise.race([dummy(), promise.then(() => true, () => false)]) : false;
-const isRejected = (promise) => promise ? Promise.race([dummy(), promise.then(() => false, () => true)]) : false;
-const isFinished = (promise) => promise ? Promise.race([dummy(), promise.then(() => true, () => true)]) : false;
-
-/*
-const p = sleep(1000);
-for (let i = 0; i < 20; i++) {
-  console.log(i, await isFinished(p));
-  await sleep(100);
-}
-*/
+import { isFinished } from "https://code4fukui.github.io/promiseutil/promiseutil.js";
 
 window.onload = async () => {
   const defaulturl = "https://code4fukui.github.io/SoundJE/dist/questions/questions.csv";
@@ -93,7 +81,7 @@ window.onload = async () => {
     }
     restart.textContent = "もう一度挑戦する";
     await waitClickOrEnter(restart);
-    result.textContent = restart.textContent = target.textContent = targetja.textContent = "";
+    result.textContent = restart.textContent = target.textContent = "";
   }
 };
 </script>
